@@ -40,7 +40,7 @@ sudo apt install nfs-kernel-server
 sudo mkdir /nfsroot
 ```
 
-Configure /etc/exports to add the directoryas sharing:
+Configure /etc/exports to share that directory:
 
 ```bash
 /nfsroot 192.168.0.0/16(rw,no_root_squash,no_subtree_check)
