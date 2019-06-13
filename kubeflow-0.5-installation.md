@@ -3,18 +3,18 @@
 Install kfctl the command line for kubeflow management
 
 Download CLI for kubeflow installation management:
-'''bash
+```bash
 wget https://github.com/kubeflow/kubeflow/releases/download/v0.5.1/kfctl_v0.5.1_linux.tar.gz
-'''
+```
 
 Export path for CLI:
-'''bash
+```bash
 export PATH=$PATH:$(pwd)
-'''bash
+```bash
 
 Install kubeflow artifacts:
 
-'''bash
+```bash
 export KFAPP=mykubeflow
 
 # Default uses IAP.
@@ -22,7 +22,7 @@ kfctl init ${KFAPP}
 cd ${KFAPP}
 kfctl generate all -V
 kfctl apply all -V
-'''
+```
 
 This will lead to an installation of kubeflow with three unbounded Persistent Volume Claims.
 
@@ -34,26 +34,26 @@ We described the latter in the following sections.
 
 In order to provide a NFS volume you need to have a NFS server:
 
-'''bash
+```bash
 sudo apt install nfs-common
 sudo apt install nfs-kernel-server
 sudo mkdir /nfsroot
-'''
+```
 
 Configure /etc/exports to add the directoryas sharing:
 
-'''bash
+```bash
 /nfsroot 192.168.0.0/16(rw,no_root_squash,no_subtree_check)
-'''
+```
 
 Notice that 192.168.0.0 is the nodes' CIDR, not the Kubernetes CIDR.
 NFS Client
 
 In order to allow any node of the cluster to be able to mount NFS filesystem:
 
-'''bash
+```bash
 sudo apt install nfs-common
-'''
+```
 
 # Dynamic Volume Provisioning
 
@@ -63,18 +63,18 @@ NFS client provisioner can be found here.
 
 You can install it with Helm:
 
-'''bash
+```bash
 helm install --name nfs-client-provisioner --set nfs.server=<NFS Server IP> --set nfs.path=/exported/path stable/nfs-client-provisioner
-'''
+```
 
 The component in the system will add a Storage Class that you can see in this way:
 
-'''bash
+```bash
 kubectl get storageclass -n kubeflow
 
 NAME                   PROVISIONER                            AGE
 nfs-client (default)   cluster.local/nfs-client-provisioner   6h13m
-'''
+```
 
 Any persistent volume with storageClassName: nfs-client will trigger the creation of a proper persistent volume.
 Update Kubeflow's Persistent Volume Claims
@@ -83,15 +83,15 @@ In ordert to trigger the automatic assigment for Kubeflow's Persistent Volume Cl
 
 In order to perform this you can download the three Persistent Volume Claims:
 
-'''bash
+```bash
 kubectl get pvc/mysql-pv-claim -n kubeflow -o yaml > mysql-pv-claim.yaml
 kubectl get pvc/minio-pvc -n kubeflow -o yaml > minio-pvc.yaml
 kubectl get pvc/katib-mysql -n kubeflow -o yaml > katib.yaml
-'''
+```
 
 And then modify files to add the right storageClassName like in those examples:
 
-'''yaml
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -111,9 +111,9 @@ spec:
     requests:
       storage: 20Gi
   volumeMode: Filesystem
-'''
+```
 
-'''yaml
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -134,9 +134,9 @@ spec:
     requests:
       storage: 10Gi
   volumeMode: Filesystem
-'''
+```
 
-'''yaml
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -157,22 +157,22 @@ spec:
     requests:
       storage: 10Gi
   volumeMode: Filesystem
-'''
+```
 
 Finally use the files to remove:
 
-'''bash
+```bash
 kubectl delete -f mysql-pv-claim.yaml
 kubectl delete -f minio-pvc.yaml
 kubectl delete -f katib.yaml
-'''
+```
 
 and add again:
 
-'''bash
+```bash
 kubectl apply -f mysql-pv-claim.yaml
 kubectl apply -f minio-pvc.yaml
 kubectl apply -f katib.yaml
-'''
+```
 
 [Michele Mastrogiovanni > Kubeflow installation > kubeflow-deployments-1.PNG] [Michele Mastrogiovanni > Kubeflow installation > kubeflow-deployments-2.PNG] 
